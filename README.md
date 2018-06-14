@@ -53,6 +53,22 @@ real implementations
 
  e.g shopping application
 
- steps to run 'shop-api' application
+ steps to run sample 'shop-api' application
+
+
+  => install node.js runtime : https://nodejs.org/en/
+
+  > node -v
+  > npm -v
+
+  on project directory
+
+  > npm i    
+  > npm start
+
+  ---------------------------------------------------
+
+
+
 
 

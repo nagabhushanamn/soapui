@@ -4,10 +4,7 @@
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
-    "validateUpsert": true,
-    "mysql": {
-      "table": "PRODUCTS"
-    }
+    "validateUpsert": true
   },
   "properties": {
     "id": {
