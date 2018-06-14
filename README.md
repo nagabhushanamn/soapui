@@ -55,8 +55,9 @@ real implementations
 
  steps to run sample 'shop-api' application
 
-
   => install node.js runtime : https://nodejs.org/en/
+    
+verify Node.js runtime
 
   > node -v
   > npm -v
