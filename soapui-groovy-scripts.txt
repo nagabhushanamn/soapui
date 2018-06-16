@@ -362,3 +362,16 @@ while( i.hasNext()){
          testRunner.runTestStepByName( "ConversionRate")
 }
          
+
+// add external jars
+
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils(context)
+def classpathHacker = new com.eviware.soapui.support.ClasspathHacker()
+
+
+path = groovyUtils.getProjectPath()
+myfile = new java.io.File(path + "/jars/ojdbc7.jar")
+mystring = "file://" + path + "/jars/ojdbc7.jar"
+
+classpathHacker.addFile( myfile )
+classpathHacker.addURL( new URL(mystring))         
