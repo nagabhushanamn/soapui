@@ -36,11 +36,11 @@
     "public": false
   },
   "Product": {
-    "dataSource": "db",
+    "dataSource": "mysql_db",
     "public": true
   },
   "Review": {
-    "dataSource": "db",
+    "dataSource": "mysql_db",
     "public": true
   }
 }

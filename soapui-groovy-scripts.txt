@@ -1,0 +1,364 @@
+
+
+Accessing Properties
+
+
+//---------------------------------------------------------------------------------------
+//get properties
+//---------------------------------------------------------------------------------------
+// Get a test case property
+def testCaseProperty = testRunner.testCase.getPropertyValue("case")
+log.info testCaseProperty
+// Get a test suite property
+def testSuiteProperty = testRunner.testCase.testSuite.getPropertyValue( "suite" )
+log.info testSuiteProperty
+// Get a project property
+def projectProperty = testRunner.testCase.testSuite.project.getPropertyValue( "project" )
+log.info projectProperty
+// Get a global property
+def globalProperty = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue( "global" )
+log.info globalProperty
+
+//---------------------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------------------
+// set properties
+//---------------------------------------------------------------------------------------
+def someValue='some-value'
+// Set a test case property
+testRunner.testCase.setPropertyValue( "MyProp", someValue )
+// Set a test suite property
+testRunner.testCase.testSuite.setPropertyValue( "MyProp", someValue )
+// Set a project property
+testRunner.testCase.testSuite.project.setPropertyValue( "MyProp", someValue ) 
+// Set a global property
+com.eviware.soapui.SoapUI.globalProperties.setPropertyValue( "MyProp", someValue )
+
+//---------------------------------------------------------------------------------------
+
+
+//---------------------------------------------------------------------------------------
+script-assert
+//---------------------------------------------------------------------------------------
+// Get a test case property
+def testCaseProperty = messageExchange.modelItem.testStep.testCase.getPropertyValue( "MyProp" )
+// Get a test suite property
+def testSuiteProperty = messageExchange.modelItem.testStep.testCase.testSuite.getPropertyValue( "MyProp" )
+// Get a project property
+def projectProperty = messageExchange.modelItem.testStep.testCase.testSuite.project.getPropertyValue( "MyProp" )
+// Get a global property
+def globalProperty = com.eviware.soapui.SoapUI.globalProperties.getPropertyValue( "MyProp" )
+
+//---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
+// #verify JSON Response  in script-assert
+//---------------------------------------------------------------------------------------
+// imports
+import groovy.json.JsonSlurper
+//grab the response
+def ResponseMessage = messageExchange.response.responseContent
+//define a JsonSlurper
+def jsonSlurper = new JsonSlurper().parseText(ResponseMessage)
+
+//verify the slurper isn't empty
+//assert !(jsonSlurper.isEmpty())
+
+// verify we have 4 records
+//assert 4==jsonSlurper.size()
+
+// verify every item has price property with decimal value
+def isValid=true;
+jsonSlurper.each {
+	if(!(it.price && it.price =~ /\d+/)){
+		valid=false 
+	}
+}
+assert isValid
+
+//---------------------------------------------------------------------------------------
+Get the Project Name
+//---------------------------------------------------------------------------------------
+
+testRunner.testCase.testSuite.project.name
+
+//---------------------------------------------------------------------------------------
+Get the Test Step Name
+//---------------------------------------------------------------------------------------
+
+context.getCurrentStep().getLabel()
+
+//---------------------------------------------------------------------------------------
+Implementing Groovy DataSources
+//---------------------------------------------------------------------------------------
+
+// To get the output value, use the built-in result map object
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils(context)
+def projectPath = groovyUtils.projectPath
+def directoryName = projectPath + "/testData"
+def allFiles = []
+new File( directoryName ).eachFile() { file ->
+    if( file.name =~ /.txt/ ) {
+        allFiles.add( file.name )	}
+}
+
+//---------------------------------------------------------------------------------------
+Working With XML
+//---------------------------------------------------------------------------------------
+
+
+// Create the XmlHolder object for the response of the Request 1 request
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def holder = groovyUtils.getXmlHolder( "Request 1#Response" )
+
+// Iterate through item nodes in the response message
+for( item in holder.getNodeValues( "//item" ))
+    log.info "Item : [$item]" 
+
+// or , if XML elements has namspace
+
+// Create the XmlHolder object for the response of the Request 1 request
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def holder = groovyUtils.getXmlHolder( "Request 1#Response" )
+
+// Define a namespace
+holder.namespaces["ns"] = "http://acme.com/mynamspace"
+
+// Iterate through item nodes in the response message
+for( item in holder.getNodeValues( "//ns:item" ))
+    log.info "Item : [$item]"    
+
+
+//---------------------------------------------------------------------------------------
+Count Nodes
+//---------------------------------------------------------------------------------------
+
+// Create the XmlHolder object for the response of the Request 1 request
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )
+def holder = groovyUtils.getXmlHolder( "Request 1#Response" )
+
+// Obtain the number of links in paragraphs
+def numberOfLinksInParagraphs = holder["count(//html/body/p/a)"]
+
+
+//---------------------------------------------------------------------------------------
+Change XML Content of a Request From Groovy
+//---------------------------------------------------------------------------------------
+
+
+// Create the XmlHolder object for the login request 
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils( context )  
+def holder = groovyUtils.getXmlHolder( "login#Request" ) 
+
+// Change the value of the password node
+holder["//password"] = "new value"  
+
+// Write the updated request
+holder.updateProperty()
+
+
+//---------------------------------------------------------------------------------------
+Working With Events
+//---------------------------------------------------------------------------------------
+
+
+Changing a Response Before It Gets Validated
+
+/ Get the response content
+if( request.response == null )
+    return
+
+def content = context.httpResponse.responseContent
+
+// Replace the string
+content = content.replaceAll( "555", "444" )
+
+// Write the new content to the response
+context.httpResponse.responseContent = content
+
+//---------------------------------------------------------------------------------------
+
+// Get the request headers
+def headers = request.requestHeaders
+
+// Create a custom header
+headers.put( "X-tokenHeader", "value") // Replace values with those you need
+
+// Add the custom header to request headers
+request.requestHeaders = headers
+
+//---------------------------------------------------------------------------------------
+Controlling Playback
+//---------------------------------------------------------------------------------------
+
+
+Loop a Number of Test Steps
+
+// Create a loop counter
+if( context.loopIndex == null )
+    context.loopIndex = 0
+
+// Increase the counter value and check if it has reached the desired number
+if( ++context.loopIndex < 10 )
+{
+    // Run the first test step in the loop
+    testRunner.gotoStepByName( "First test step" )
+
+//---------------------------------------------------------------------------------------
+
+Run a Test Case Located in Another Project   
+
+// Replace the project, test suite, case and step names with those you need
+
+// Connect to the test step in another project
+def prj = testRunner.testCase.testSuite.project.workspace.getProjectByName("ProjectName")
+tCase = prj.testSuites['TestSuiteName'].testCases['TestCaseName']
+tStep = tCase.getTestStepByName("TestStepName")
+
+// Call the test runner and check if it can run the specified step
+def runner = tStep.run(testRunner, context)
+log.info ("runner status ....... : " + runner.hasResponse() 
+
+//---------------------------------------------------------------------------------------
+
+Logging Results
+
+// Replace the path with the one you need
+filePath = 'c:/work/test-results/'
+
+// Create output files
+fos = new FileOutputStream( filePath + testStepResult.testStep.label + '.txt', true )
+
+// Fill output files
+pw = new PrintWriter( fos )
+testStepResult.writeTo( pw )
+
+// Close the output stream
+pw.close()
+fos.close()
+
+//---------------------------------------------------------------------------------------
+
+Use a JDBC Driver From Inside a Groovy Script
+
+// Register the MySQL JDBC driver
+com.eviware.soapui.support.GroovyUtils.registerJdbcDriver( "com.mysql.jdbc.Driver" )
+
+
+//---------------------------------------------------------------------------------------
+
+
+Branching and Looping with a Script TestStep
+
+
+if( Math.random() > 0.5 )
+   testRunner.gotoStepByName( "Request 1")
+else
+   testRunner.gotoStepByName( "Request 2")
+
+// do something else
+
+//---------------------------------------------------------------------------------------
+
+
+if( Math.random() > 0.5 )
+   testRunner.runTestStepByName( "Request 1")
+else
+   testRunner.runTestStepByName( "Request 2")
+
+// do something else
+
+//---------------------------------------------------------------------------------------
+
+
+XLS
+------
+
+// 1.
+
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Iterator;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+ 
+FileInputStream file = new FileInputStream(new File('C:\\sample.xls'));
+XSSFWorkbook workbook1 = new XSSFWorkbook(file)
+XSSFSheet sheet1 = workbook1.getSheetAt(0)
+Iterator ite = sheet1.rowIterator();
+ 
+headers=[]
+ 
+Row row = ite.next();
+Iterator<Cell> cite = row.cellIterator();
+while(cite.hasNext()){
+        Cell c = cite.next();
+        headers << c.toString()
+}
+ 
+file.close();
+ 
+log.info headers
+ 
+for ( i in headers ) {
+  testRunner.testCase.testSteps["DataSource"].addProperty(i);
+}
+
+
+// 2.
+
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.ss.util.*;
+import org.apache.poi.ss.usermodel.*;
+import java.io.*;
+ 
+class ExcelReader {
+  
+  def readData() {
+        def path = "E:\\Automation-WorkArea\\APITest\\Book1.xlsx";
+        InputStream inputStream = new FileInputStream(path);
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+                      
+        Iterator rowIterator = sheet.rowIterator();
+        rowIterator.next()
+        Row row;                       
+        def rowsData = []
+        while(rowIterator.hasNext()) {
+             row = rowIterator.next()
+             def rowIndex = row.getRowNum()
+             def colIndex;
+             def rowData = []
+             for (Cell cell : row) {
+                 colIndex = cell.getColumnIndex()
+                  rowData[colIndex] = cell.getRichStringCellValue().getString();
+             }                    
+             rowsData << rowData
+         }
+         rowsData
+  }
+ }
+ 
+def groovyUtils = new com.eviware.soapui.support.GroovyUtils(context)
+def myTestCase = context.testCase
+ 
+ExcelReader excelReader = new ExcelReader();
+List rows = excelReader.readData();
+def d = []
+Iterator i = rows.iterator();
+while( i.hasNext()){
+         d = i.next();
+         myTestCase.setPropertyValue("From", d[0])
+         myTestCase.setPropertyValue("To", d[1])       
+         testRunner.runTestStepByName( "ConversionRate")
+}
+         

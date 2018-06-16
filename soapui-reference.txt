@@ -1,0 +1,72 @@
+SoapUI model items
+ModelItems are the preliminary building blocks of a soapUI project. The elements such as projects, test suites, test cases, test steps, mock services, mock responses, and assertions are all implemented as ModelItems.
+The com.eviware.soapui.model.ModelItem interface (http://www.soapui.org/apidocs/com/eviware/soapui/model/ModelItem.html) is the super interface which defines the general behavior of all soapUI model items. Does it sounds to be Greek and Latin! In Layman terms, all that you visualize and access in SoapUI Project are model items, which could then be accessible through scripts.
+The SoapUI model items are commonly accessible through parent or children relationship.
+
+HOW we track using LOGS?
+Script Logs are used to show the log messages dumped by scripts invoked from various levels of the project.
+There are two instances of script logs provided by SoapUI.
+
+·         Groovy Script TestStep includes a Log Output pane at the bottom of the editor which shows the log output if you run the Groovy Script individually.
+·         There is also a script log tab at the bottom of the log tool bar, which displays the log messages dumped by execution of Groovy Scripts from the TestCase and TestSuite levels of the SoapUI project. These two logs are shown in the following image.
+
+
+Accessing LOG using script
+Here comes the log object comes to scenario, that can be used in scripts at any level in a SoapUI project. Here is the different methods associated with log object,
+
+
+Accessing SoapUI variables/ objects
+The most used variables/ objects in SoapUI are
+·         log (object) – refer above
+·         messageExchange (variable)
+·         context (object)
+·         testRunner (variable)
+
+messageExchange
+SoapUI's MessageExchange interface defines methods for retrieving information related to test requests, including request and response data. 
+Within a Groovy Script assertion, a built-in variable (messageExchange) provides access to an object of a class that implements the MessageExchange interface. Some of the common methods of the interface include,
+·         getEndpoint() : returns the target endpoint as a String
+·         getRequestContent() : returns the content of the test request
+·         getRequestContentAsXml() : returns the content of the test request (as XML)
+·         getResponseContent() : returns the content of the response to the test request
+·         getResponseContentAsXml() : returns the content of the response to the test request (as XML)
+·         getTimeStamp() : returns the request time stamp as a long number (see below for an example of converting from long to a standard time format)
+·         getTimeTaken() : returns the amount of time taken to process the request (in milliseconds)
+·         getRequestHeaders() : returns request headers as a StringToStringsMap object
+·         getResponseHeaders() : returns response headers as a StringToStringsMap object
+
+Here is the link to complete list of methods supported by messageExchange variable - http://www.soapui.org/apidocs/com/eviware/soapui/model/iface/messageexchange.html
+
+
+testRunner
+The testRunner variables are used to execute tests in a SoapUI project. The sub interfaces of the com.eviware.soapui.model.testsuite.TestRunner interface (http://www.soapui.org/apidocs/com/eviware/soapui/model/testsuite/TestRunner.html) are used to execute various elements of a soapUI Project.
+In this section, we will look into the usage of testRunner inside a SoapUI project. The testRunner interfaces provide methods such as start, cancel, and fail to control the test execution. Following are the commonly used methods of testRunner variable:
+·         cancel(String reason) : Cancels an ongoing test run with the specified reason
+·         fail(String reason) : Fails an ongoing test run with the specified reason
+·         getReason() : Gets the reason why a running test was canceled or failed
+·         getStartTime() : Returns the time this runner was last started
+·         getStatus() : Gets the current status of this TestRunner
+·         getTimeTaken() : Returns the time taken by this runner since its last start
+·         isRunning() : Lets the user know the current run status
+·         start(boolean async) : Starts running this TestRunners TestCase.
+·         waitUntilFinished() : Blocks until this runner is finished, (returns directly if it already has finished)
+
+
+
+context
+The context object holds information about a particular test run session. It can be used to read and write/update context-specific variables. There are different contexts available in a soapUI project, for example:
+• LoadTestRunContext : This holds context information about the loadtest run session
+• MockRunContext : This context is available for the duration of a Mock Services' execution
+• SubmitContext : This is available during one submit of a request
+• TestRunContext : This is available during a TestCase execution and all scripts in a TestCase run have access to the TestRunContext.
+More information related to context object could be verified here - https://www.soapui.org/apidocs/com/eviware/soapui/model/testsuite/TestCaseRunContext.html
+
+Following are the commonly used methods of context object (The associated methods vary based on the model item):
+·         getCurrentStepIndex() : Returns index of the current test step
+·         getProperty(String testStep, String propertyName) : Returns value of a property
+·         getTestCase() :  Fetches associated test case. Using this we can navigate through the model item hierarchy
+·         getTestRunner() : Call testRunner from context
+·         hasProperty() : Verifies for context related properties
+·         removeProperty() : Removes an existing context property
+·         setProperty() : Sets a context property
+I I can understand that it might sound like Greek & Latin at start. But, when you start practicing it would be easy to handle. Please post comments if you got any suggestion/ feedback's.
